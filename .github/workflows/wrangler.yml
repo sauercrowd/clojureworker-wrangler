@@ -3,26 +3,6 @@ name: clojureworker
 on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install deps
-      run: |
-        sudo apt update && sudo apt install -y leiningen
-    - name: lein build
-      run: |
-        lein cljsbuild once production
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install deps
-      run: |
-        sudo apt update && sudo apt install -y leiningen
-    - name: lein test
-      run: |
-        lein test | grep "All tests succeeded!"
   create-worker:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +16,7 @@ jobs:
           tar xvf wrangler.tar.gz
     - name: deploy worker
       run: |
-          export PATH=$PATH:./dist &&
+          export PATH=$PATH:`pwd`/dist &&
           wrangler generate my-new-cljs-project https://github.com/sauercrowd/clojureworker-wrangler &&
           cd my-new-cljs-project && 
           wrangler preview
