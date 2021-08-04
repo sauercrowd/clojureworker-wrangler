@@ -1,0 +1,42 @@
+name: clojureworker
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        sudo apt update && sudo apt install -y leiningen
+    - name: lein build
+      run: |
+        lein cljsbuild once production
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        sudo apt update && sudo apt install -y leiningen
+    - name: lein test
+      run: |
+        lein test | grep "All tests succeeded!"
+  create-worker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install deps
+      run: |
+        sudo apt update && sudo apt install -y leiningen
+    - name: Get Wrangler
+      run:
+          curl -L https://github.com/cloudflare/wrangler/releases/download/v1.17.0/wrangler-v1.17.0-x86_64-unknown-linux-musl.tar.gz -o ./wrangler.tar.gz &&
+          tar xvf wrangler.tar.gz
+    - name: deploy worker
+      run: |
+          export PATH=$PATH:./dist &&
+          wrangler generate my-new-cljs-project https://github.com/sauercrowd/clojureworker-wrangler &&
+          cd my-new-cljs-project && 
+          wrangler preview
